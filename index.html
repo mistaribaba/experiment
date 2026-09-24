@@ -1,31 +1,119 @@
-<html>
-    <head>
-        <title>Experiment to test is google form can work as an databse for the html site</title>
-        <style>
-            
-        </style>
-    </head>
-    <body>
-        <iframe name="hiddenbox" style="display:none;"></iframe>
-        <h5>Enter your details !!! </h5>
-        
-        <!-- CHANGE 1: Removed /u/0/ from the link below -->
-        <form target="hiddenbox" onsubmit="setTimeout(function(){ window.location.href = 'thankyou.html'; }, 200);" action="https://docs.google.com/forms/d/e/1FAIpQLSc1TxZPxIQzZnFVW0TBAGDUTAsDEMRRTGqUA35miFdCSqLqKw/formResponse" method="POST">
-            
-            <label>Enter your full name: </label> 
-            <!-- CHANGE 2: Added 'required' -->
-            <input name="entry.1768654525" type="text" required>
-            <br><br>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Experiment to test if google form can work as a database</title>
+    <style>
+        /* 1. Global Reset & Font */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
-            <label>Suggestion: </label> 
-            <!-- CHANGE 3: Added 'required' -->
-            <input name="entry.249157718" type="text" required>
-            <br><br>
+        /* 2. Full-Screen Linear Gradient Background */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* 3. The Main Form Card (Glass/Shadow Effect) */
+        .form-card {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .form-card h2 {
+            text-align: center;
+            color: #333333;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        /* 4. Input Field Styling */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555555;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        /* Highlight the box when the user clicks to type */
+        .input-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+        }
+
+        /* 5. Modern Button Styling */
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        /* Button pop-up animation on hover */
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(118, 75, 162, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hidden iframe to process data silently -->
+    <iframe name="hiddenbox" style="display:none;"></iframe>
+    
+    <!-- Modern UI Container -->
+    <div class="form-card">
+        <h2>Enter your details</h2>
+        
+        <form target="hiddenbox" onsubmit="setTimeout(function(){ window.location.href = 'thankyou.html'; }, 500);" action="https://docs.google.com/forms/d/e/1FAIpQLSc1TxZPxIQzZnFVW0TBAGDUTAsDEMRRTGqUA35miFdCSqLqKw/formResponse" method="POST">
             
-            <button type="submit" >submit</button>
+            <div class="input-group">
+                <label>Enter your full name:</label> 
+                <input name="entry.1768654525" type="text" placeholder="e.g. Kunal" required>
+            </div>
+
+            <div class="input-group">
+                <label>Suggestion:</label> 
+                <input name="entry.249157718" type="text" placeholder="Type your ideas here..." required>
+            </div>
+            
+            <button type="submit">Submit Data</button>
         </form>
-        <script type="text/javascript">
-    var submitted = false;
-</script>
-    </body>
+    </div>
+
+</body>
 </html>

@@ -1,119 +1,466 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Experiment to test if google form can work as a database</title>
-    <style>
-        /* 1. Global Reset & Font */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Experiment to test if google form can work as a database</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+  @property --a { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 
-        /* 2. Full-Screen Linear Gradient Background */
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
+  :root {
+    --ink: #f4f1ff;
+    --ink-soft: rgba(244, 241, 255, .68);
+    --line: rgba(255, 255, 255, .16);
+    --glass: rgba(20, 16, 56, .42);
+    --violet: #667eea;
+    --plum: #764ba2;
+    --aqua: #38e1ff;
+    --rose: #ff6ec7;
+  }
 
-        /* 3. The Main Form Card (Glass/Shadow Effect) */
-        .form-card {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-        }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .form-card h2 {
-            text-align: center;
-            color: #333333;
-            margin-bottom: 25px;
-            font-size: 24px;
-        }
+  html, body { height: 100%; }
 
-        /* 4. Input Field Styling */
-        .input-group {
-            margin-bottom: 20px;
-        }
+  body {
+    font-family: 'Bricolage Grotesque', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--ink);
+    background: #1a1547;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100dvh;
+    padding: 24px 16px;
+    overflow-x: hidden;
+  }
 
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            color: #555555;
-        }
+  /* Water canvas sits behind everything */
+  #water {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
 
-        .input-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e1e1e1;
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
+  .stage {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+  }
 
-        /* Highlight the box when the user clicks to type */
-        .input-group input:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
-        }
+  /* Card with animated gradient edge */
+  .card {
+    position: relative;
+    padding: clamp(26px, 6vw, 42px);
+    border-radius: 28px;
+    background: var(--glass);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    backdrop-filter: blur(22px) saturate(140%);
+    box-shadow: 0 30px 80px rgba(8, 4, 40, .55), inset 0 1px 0 rgba(255, 255, 255, .18);
+    animation: rise .9s cubic-bezier(.2, .8, .2, 1) both;
+  }
 
-        /* 5. Modern Button Styling */
-        button {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            margin-top: 10px;
-        }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(from var(--a), var(--violet), var(--aqua), var(--rose), var(--plum), var(--violet));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: spin 7s linear infinite;
+    pointer-events: none;
+  }
 
-        /* Button pop-up animation on hover */
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 15px rgba(118, 75, 162, 0.4);
-        }
-    </style>
+  @keyframes spin { to { --a: 360deg; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(24px) scale(.97); } to { opacity: 1; transform: none; } }
+
+  .badge {
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 22px;
+    background: linear-gradient(135deg, var(--violet), var(--plum) 60%, var(--rose));
+    box-shadow: 0 12px 28px rgba(118, 75, 162, .55);
+  }
+  .badge svg { width: 28px; height: 28px; stroke: #fff; }
+
+  h1 {
+    font-size: clamp(28px, 7vw, 36px);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.08;
+    margin-bottom: 10px;
+  }
+
+  .sub {
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 28px;
+    max-width: 34ch;
+  }
+
+  .field { margin-bottom: 18px; }
+
+  .field label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .control { position: relative; }
+
+  .control svg {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    width: 19px;
+    height: 19px;
+    transform: translateY(-50%);
+    stroke: var(--ink-soft);
+    transition: stroke .25s ease;
+    pointer-events: none;
+  }
+
+  .control input {
+    width: 100%;
+    padding: 15px 16px 15px 46px;
+    font: inherit;
+    font-size: 16px; /* prevents iOS zoom on focus */
+    color: var(--ink);
+    background: rgba(255, 255, 255, .08);
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    outline: none;
+    transition: border-color .25s ease, background .25s ease, box-shadow .25s ease;
+  }
+
+  .control input::placeholder { color: rgba(244, 241, 255, .42); }
+
+  .control input:focus {
+    border-color: var(--aqua);
+    background: rgba(255, 255, 255, .13);
+    box-shadow: 0 0 0 4px rgba(56, 225, 255, .18), 0 0 26px rgba(56, 225, 255, .22);
+  }
+  .control:focus-within svg { stroke: var(--aqua); }
+
+  /* Submit button */
+  button.send {
+    position: relative;
+    width: 100%;
+    margin-top: 10px;
+    padding: 16px;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    border: 0;
+    border-radius: 14px;
+    cursor: pointer;
+    overflow: hidden;
+    background: linear-gradient(120deg, var(--violet), var(--plum), var(--rose), var(--violet));
+    background-size: 240% 100%;
+    box-shadow: 0 14px 30px rgba(118, 75, 162, .5);
+    transition: transform .25s ease, box-shadow .25s ease, background-position .6s ease;
+  }
+  button.send:hover { transform: translateY(-3px); background-position: 100% 0; box-shadow: 0 20px 38px rgba(255, 110, 199, .38); }
+  button.send:active { transform: translateY(0) scale(.99); }
+  button.send:focus-visible { outline: 3px solid var(--aqua); outline-offset: 3px; }
+  button.send[disabled] { cursor: progress; opacity: .85; transform: none; }
+
+  button.send .spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    margin: 0 auto;
+    border: 2.5px solid rgba(255, 255, 255, .35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: turn .7s linear infinite;
+  }
+  button.send.loading .label { display: none; }
+  button.send.loading .spinner { display: block; }
+  @keyframes turn { to { transform: rotate(360deg); } }
+
+  /* Success view (replaces thankyou.html) */
+  .done { display: none; text-align: center; padding: 8px 0; }
+  .card.sent form { display: none; }
+  .card.sent .head { display: none; }
+  .card.sent .done { display: block; animation: rise .6s cubic-bezier(.2, .8, .2, 1) both; }
+
+  .tick {
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #2fe3a6, var(--aqua));
+    box-shadow: 0 0 0 10px rgba(56, 225, 255, .12), 0 16px 36px rgba(56, 225, 255, .4);
+  }
+  .tick svg { width: 40px; height: 40px; stroke: #0b1a3a; stroke-width: 3.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .tick path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: draw .6s .25s ease forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  .done h2 { font-size: 28px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 8px; }
+  .done p { color: var(--ink-soft); font-size: 15px; line-height: 1.5; margin-bottom: 24px; }
+
+  button.again {
+    padding: 13px 26px;
+    font: inherit;
+    font-weight: 600;
+    color: var(--ink);
+    background: rgba(255, 255, 255, .1);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background .25s ease, transform .25s ease;
+  }
+  button.again:hover { background: rgba(255, 255, 255, .18); transform: translateY(-2px); }
+  button.again:focus-visible { outline: 3px solid var(--aqua); outline-offset: 3px; }
+
+  @media (max-width: 380px) {
+    .card { border-radius: 22px; }
+    .badge { width: 50px; height: 50px; margin-bottom: 18px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card, .card::before, .done { animation: none; }
+    button.send, button.again { transition: none; }
+  }
+</style>
 </head>
 <body>
 
-    <!-- Hidden iframe to process data silently -->
-    <iframe name="hiddenbox" style="display:none;"></iframe>
-    
-    <!-- Modern UI Container -->
-    <div class="form-card">
-        <h2>Enter your details</h2>
-        
-        <form target="hiddenbox" onsubmit="setTimeout(function(){ window.location.href = 'thankyou.html'; }, 500);" action="https://docs.google.com/forms/d/e/1FAIpQLSc1TxZPxIQzZnFVW0TBAGDUTAsDEMRRTGqUA35miFdCSqLqKw/formResponse" method="POST">
-            
-            <div class="input-group">
-                <label>Enter your full name:</label> 
-                <input name="entry.1768654525" type="text" placeholder="e.g. Kunal" required>
-            </div>
+  <!-- Interactive water background -->
+  <canvas id="water" aria-hidden="true"></canvas>
 
-            <div class="input-group">
-                <label>Suggestion:</label> 
-                <input name="entry.249157718" type="text" placeholder="Type your ideas here..." required>
-            </div>
-            
-            <button type="submit">Submit Data</button>
-        </form>
+  <!-- Hidden iframe receives the Google Form response silently -->
+  <iframe name="hiddenbox" title="Form response target" style="display:none;"></iframe>
+
+  <main class="stage">
+    <div class="card" id="card">
+
+      <div class="head">
+        <div class="badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c3.5 4.2 6 7.2 6 10.5A6 6 0 0 1 6 13.5C6 10.2 8.5 7.2 12 3z"/></svg>
+        </div>
+        <h1>Enter your details</h1>
+        <p class="sub">Tell us who you are and share an idea. It lands straight in our sheet.</p>
+      </div>
+
+      <form id="form" target="hiddenbox" method="POST"
+            action="https://docs.google.com/forms/d/e/1FAIpQLSc1TxZPxIQzZnFVW0TBAGDUTAsDEMRRTGqUA35miFdCSqLqKw/formResponse">
+
+        <div class="field">
+          <label for="name">Enter your full name</label>
+          <div class="control">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+            <input id="name" name="entry.1768654525" type="text" placeholder="e.g. Kunal" autocomplete="name" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="idea">Suggestion</label>
+          <div class="control">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg>
+            <input id="idea" name="entry.249157718" type="text" placeholder="Type your ideas here..." required>
+          </div>
+        </div>
+
+        <button type="submit" class="send" id="send">
+          <span class="label">Send details</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+      </form>
+
+      <div class="done" role="status" aria-live="polite">
+        <div class="tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+        <h2>Details sent</h2>
+        <p>Thanks for your suggestion. It has been saved to the sheet.</p>
+        <button type="button" class="again" id="again">Send another</button>
+      </div>
+
     </div>
+  </main>
 
+<script>
+/* ---------- Form behaviour (replaces thankyou.html redirect) ---------- */
+(function () {
+  var form = document.getElementById('form');
+  var card = document.getElementById('card');
+  var send = document.getElementById('send');
+
+  form.addEventListener('submit', function () {
+    // Native submit continues into the hidden iframe (Google Form receives it)
+    send.classList.add('loading');
+    send.disabled = true;
+    setTimeout(function () {
+      card.classList.add('sent');
+      send.classList.remove('loading');
+      send.disabled = false;
+      form.reset();
+      splash(0.5, 0.5, 6, 900); // celebratory ripple
+    }, 900);
+  });
+
+  document.getElementById('again').addEventListener('click', function () {
+    card.classList.remove('sent');
+    document.getElementById('name').focus();
+  });
+})();
+
+/* ---------- Water ripple background ---------- */
+var splash; // exposed so the form can trigger a ripple
+(function () {
+  var cv = document.getElementById('water');
+  var ctx = cv.getContext('2d');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var W, H, cur, prev, bg, frameData, image, tmp;
+
+  function resize() {
+    W = Math.max(120, Math.min(420, Math.round(innerWidth / 2)));
+    H = Math.max(120, Math.round(W * innerHeight / innerWidth));
+    cv.width = W; cv.height = H;
+    cur = new Int32Array(W * H);
+    prev = new Int32Array(W * H);
+    image = ctx.createImageData(W, H);
+    bg = new Uint8ClampedArray(W * H * 4);
+  }
+
+  // Drop at normalised coords (0..1), radius in sim pixels, strength
+  splash = function (nx, ny, r, s) {
+    var cx = Math.round(nx * W), cy = Math.round(ny * H);
+    r = r || 3; s = s || 500;
+    for (var y = -r; y <= r; y++) {
+      for (var x = -r; x <= r; x++) {
+        var px = cx + x, py = cy + y;
+        if (px < 1 || py < 1 || px >= W - 1 || py >= H - 1) continue;
+        var d = Math.sqrt(x * x + y * y);
+        if (d <= r) cur[py * W + px] += Math.round(s * (1 - d / r));
+      }
+    }
+  };
+
+  // Living gradient beneath the water
+  var blobs = [
+    { c: [102, 126, 234], r: .55, sx: .13, sy: .17, px: 0,   py: 1 },
+    { c: [255, 110, 199], r: .42, sx: .19, sy: .11, px: 2,   py: 4 },
+    { c: [56, 225, 255],  r: .40, sx: .09, sy: .21, px: 4,   py: 2 },
+    { c: [118, 75, 162],  r: .60, sx: .15, sy: .13, px: 1.3, py: 3 }
+  ];
+
+  function paintBackground(t) {
+    var i = 0, k, b, bx = [], by = [];
+    for (k = 0; k < blobs.length; k++) {
+      b = blobs[k];
+      bx[k] = (0.5 + 0.38 * Math.sin(t * b.sx + b.px)) * W;
+      by[k] = (0.5 + 0.38 * Math.cos(t * b.sy + b.py)) * H;
+    }
+    var diag = Math.max(W, H);
+    for (var y = 0; y < H; y++) {
+      for (var x = 0; x < W; x++, i += 4) {
+        var g = (x / W + y / H) * 0.5;
+        var r = 22 + 26 * g, gr = 18 + 24 * g, bl = 62 + 48 * g;
+        for (k = 0; k < blobs.length; k++) {
+          b = blobs[k];
+          var dx = x - bx[k], dy = y - by[k];
+          var rad = b.r * diag;
+          var w = 1 / (1 + (dx * dx + dy * dy) / (rad * rad * 0.22));
+          w = w * w * 0.75;
+          r += b.c[0] * w; gr += b.c[1] * w; bl += b.c[2] * w;
+        }
+        // soft caustic shimmer so refraction is visible everywhere
+        var s = Math.sin(x * 0.11 + t * 0.9) + Math.sin(y * 0.13 - t * 1.1) + Math.sin((x + y) * 0.07 + t * 0.6);
+        var lift = 7 * s;
+        bg[i] = r + lift; bg[i + 1] = gr + lift; bg[i + 2] = bl + lift * 1.3; bg[i + 3] = 255;
+      }
+    }
+  }
+
+  function step() {
+    var n = W * H - W - 1, v;
+    for (var i = W + 1; i < n; i++) {
+      v = ((cur[i - 1] + cur[i + 1] + cur[i - W] + cur[i + W]) >> 1) - prev[i];
+      prev[i] = v - (v >> 5); // damping
+    }
+    tmp = cur; cur = prev; prev = tmp;
+  }
+
+  function render() {
+    var d = image.data, i, x, y;
+    d.set(bg);
+    for (y = 1; y < H - 1; y++) {
+      for (x = 1; x < W - 1; x++) {
+        i = y * W + x;
+        var dx = cur[i - 1] - cur[i + 1];
+        var dy = cur[i - W] - cur[i + W];
+        if (dx === 0 && dy === 0) continue;
+        var sx = x + (dx >> 3), sy = y + (dy >> 3);
+        if (sx < 0) sx = 0; else if (sx >= W) sx = W - 1;
+        if (sy < 0) sy = 0; else if (sy >= H) sy = H - 1;
+        var s = (sy * W + sx) * 4, o = i * 4;
+        var light = (dx + dy) >> 2; // specular sheen
+        d[o] = bg[s] + light;
+        d[o + 1] = bg[s + 1] + light;
+        d[o + 2] = bg[s + 2] + light;
+      }
+    }
+    ctx.putImageData(image, 0, 0);
+  }
+
+  // Pointer / touch input, with a smooth trail between events
+  var lx = null, ly = null;
+  function move(e) {
+    var nx = e.clientX / innerWidth, ny = e.clientY / innerHeight;
+    if (lx !== null) {
+      var dist = Math.hypot((nx - lx) * W, (ny - ly) * H);
+      var steps = Math.min(8, Math.ceil(dist / 3));
+      for (var s = 1; s <= steps; s++) {
+        splash(lx + (nx - lx) * s / steps, ly + (ny - ly) * s / steps, 3, 260);
+      }
+    } else {
+      splash(nx, ny, 3, 260);
+    }
+    lx = nx; ly = ny;
+  }
+  addEventListener('pointermove', move, { passive: true });
+  addEventListener('pointerdown', function (e) { splash(e.clientX / innerWidth, e.clientY / innerHeight, 5, 900); }, { passive: true });
+  addEventListener('pointerup', function () { lx = ly = null; }, { passive: true });
+  document.addEventListener('pointerleave', function () { lx = ly = null; });
+  addEventListener('resize', resize);
+
+  resize();
+
+  var t = 0, last = 0, rain = 0;
+  function frame(ts) {
+    var dt = Math.min(0.05, (ts - last) / 1000 || 0.016); last = ts;
+    t += dt;
+    paintBackground(t);
+    // gentle ambient raindrops so the surface is never dead
+    if (!reduce && (rain -= dt) <= 0) {
+      splash(Math.random(), Math.random(), 2 + Math.random() * 2, 240);
+      rain = 1.2 + Math.random() * 2;
+    }
+    step();
+    render();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
 </body>
 </html>

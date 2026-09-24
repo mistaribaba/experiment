@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title>Experiment to test is google form can work as an databse for the html site</title>
+        <style>
+            
+        </style>
+    </head>
+    <body>
+        <iframe name="hiddenbox" style="display:none;"></iframe>
+        <h5>Enter your details !!! </h5>
+        
+        <!-- CHANGE 1: Removed /u/0/ from the link below -->
+        <form target="hiddenbox" onsubmit="setTimeout(function(){ window.location.href = 'thankyou.html'; }, 200);" action="https://docs.google.com/forms/d/e/1FAIpQLSc1TxZPxIQzZnFVW0TBAGDUTAsDEMRRTGqUA35miFdCSqLqKw/formResponse" method="POST">
+            
+            <label>Enter your full name: </label> 
+            <!-- CHANGE 2: Added 'required' -->
+            <input name="entry.1768654525" type="text" required>
+            <br><br>
+
+            <label>Suggestion: </label> 
+            <!-- CHANGE 3: Added 'required' -->
+            <input name="entry.249157718" type="text" required>
+            <br><br>
+            
+            <button type="submit" >submit</button>
+        </form>
+        <script type="text/javascript">
+    var submitted = false;
+</script>
+    </body>
+</html>
